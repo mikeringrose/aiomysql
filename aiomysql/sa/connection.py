@@ -23,7 +23,7 @@ class SAConnection:
         self._weak_results = weakref.WeakSet()
         self._engine = engine
         self._dialect = engine.dialect
-        self._execution_options = None
+        self._execution_options = {}
 
     def execute(self, query, *multiparams, **params):
         """Executes a SQL query with optional parameters.
@@ -77,10 +77,7 @@ class SAConnection:
         if isinstance(query, str):
             yield from cursor.execute(query, dp)
         elif isinstance(query, ClauseElement):
-            compilation_params = {'dialect': self._dialect}
-            if self._execution_options and 'schema_translate_map' in self._execution_options:
-                compilation_params['schema_translate_map'] = self._execution_options
-            compiled = query.compile(**compilation_params)
+            compiled = query.compile(dialect=self._dialect, **self._execution_options)
             # parameters = compiled.params
             if not isinstance(query, DDLElement):
                 if dp and isinstance(dp, (list, tuple)):
@@ -133,8 +130,8 @@ class SAConnection:
     def connection(self):
         return self._connection
 
-    def execution_options(self, options={}):
-        self._execution_options = options
+    def execution_options(self, **opts):
+        self._execution_options = self._execution_options.update(opts)
         return self
 
     def begin(self):
