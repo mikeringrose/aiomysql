@@ -135,7 +135,7 @@ class SAConnection:
 
     def execution_options(self, options={}):
         self._execution_options = options
-        return self._connection
+        return self
 
     def begin(self):
         """Begin a transaction and return a transaction handle.
