@@ -77,7 +77,8 @@ class SAConnection:
         if isinstance(query, str):
             yield from cursor.execute(query, dp)
         elif isinstance(query, ClauseElement):
-            compiled = query.compile(dialect=self._dialect, **self._execution_options)
+            compiled = query.compile(dialect=self._dialect,
+                            schema_translate_map=self._execution_options['schema_translate_map'] if 'schema_translate_map' in self._execution_options)
             # parameters = compiled.params
             if not isinstance(query, DDLElement):
                 if dp and isinstance(dp, (list, tuple)):
@@ -131,7 +132,7 @@ class SAConnection:
         return self._connection
 
     def execution_options(self, **opts):
-        self._execution_options = self._execution_options.update(opts)
+        self._execution_options.update(opts)
         return self
 
     def begin(self):
